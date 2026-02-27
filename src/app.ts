@@ -11,7 +11,7 @@ app.use(cors());
 // app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello from Apollo Gears World!');
+  res.send('SkillBridge Server Is Running...');
 });
 
 export default app;

@@ -7,10 +7,133 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-    id        String   @id @default(uuid())
-    email     String   @unique
-    name      String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+enum Role {
+  STUDENT
+  TUTOR
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  BANNED
+}
+
+model Users {
+  id           String  @id @default(uuid())
+  name         String
+  password     String
+  email        String  @unique
+  role         Role    @default(STUDENT)
+  profilePhoto String?
+  status       Status  @default(ACTIVE)
+
+  tutorProfile    TutorProfiles?
+  studentBookings Bookings[]     @relation("StudentBookings")
+  reviews         Reviews[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@map("users")
+}
+
+model TutorProfiles {
+  id         String @id @default(uuid())
+  userId     String @unique
+  categoryId String
+
+  bio             String
+  hourlyRate      Int    @default(0)
+  experienceYears Int
+
+  ratingAverage Float
+  totalReview   Int   @default(0)
+
+  users    Users      @relation(fields: [userId], references: [id])
+  category Categories @relation(fields: [categoryId], references: [id])
+
+  availabilitySlots AvailabilitySlots[]
+  bookings          Bookings[]
+  reviews           Reviews[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([categoryId])
+  @@map("tutorProfile")
+}
+
+model Categories {
+  id          String @id @default(uuid())
+  name        String
+  description String
+
+  tutors TutorProfiles[]
+
+  @@map("category")
+}
+
+model AvailabilitySlots {
+  id      String @id @default(uuid())
+  tutorId String
+
+  daysOfWeek String
+  startTime  DateTime
+  endTime    DateTime
+  isBooked   Boolean  @default(false)
+
+  tutor    TutorProfiles @relation(fields: [tutorId], references: [id])
+  bookings Bookings[]
+}
+
+enum BookingStatus {
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Bookings {
+  id        String @id @default(uuid())
+  studentId String
+  tutorId   String
+  slotId    String
+
+  bookingDate DateTime
+  price       Int
+  status      BookingStatus @default(CONFIRMED)
+
+  student Users             @relation("StudentBookings", fields: [studentId], references: [id])
+  tutor   TutorProfiles     @relation(fields: [tutorId], references: [id])
+  slot    AvailabilitySlots @relation(fields: [slotId], references: [id])
+
+  CreatedAt DateTime @default(now())
+  reviews   Reviews?
+
+  @@index([studentId])
+  @@index([tutorId])
+  @@index([slotId])
+  @@index([status])
+  @@map("booking")
+}
+
+model Reviews {
+  id      String @id @default(uuid())
+  rating  Int
+  comment String
+
+  bookingId String @unique
+  studentId String
+  tutorId   String
+
+  booking Bookings      @relation(fields: [bookingId], references: [id])
+  student Users         @relation(fields: [studentId], references: [id])
+  tutor   TutorProfiles @relation(fields: [tutorId], references: [id])
+
+  CreatedAt DateTime @default(now())
+
+  @@index([studentId])
+  @@index([tutorId])
+  @@map("review")
 }
