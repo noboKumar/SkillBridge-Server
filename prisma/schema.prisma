@@ -1,11 +1,13 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
+
 
 datasource db {
   provider = "postgresql"
 }
+
 
 enum Role {
   STUDENT
@@ -75,14 +77,24 @@ model Categories {
   @@map("category")
 }
 
+enum DayOfWeek {
+  SATURDAY
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
 model AvailabilitySlots {
   id      String @id @default(uuid())
   tutorId String
 
-  daysOfWeek String
-  startTime  DateTime
-  endTime    DateTime
-  isBooked   Boolean  @default(false)
+  daysOfWeek DayOfWeek
+  startTime  String
+  endTime    String
+  isBooked   Boolean   @default(false)
 
   tutor    TutorProfiles @relation(fields: [tutorId], references: [id])
   bookings Bookings[]
@@ -132,6 +144,7 @@ model Reviews {
   tutor   TutorProfiles @relation(fields: [tutorId], references: [id])
 
   CreatedAt DateTime @default(now())
+  reviewsId String?
 
   @@index([studentId])
   @@index([tutorId])
