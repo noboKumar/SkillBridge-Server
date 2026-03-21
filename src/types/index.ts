@@ -9,3 +9,10 @@ export type loginUser = {
   email: string;
   password: string;
 };
+
+export type TResponse<T> = {
+  statusCode: number;
+  success: boolean;
+  message?: string;
+  data?: T;
+};

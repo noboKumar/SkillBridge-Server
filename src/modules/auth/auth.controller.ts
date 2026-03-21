@@ -1,5 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { authService } from "./auth.service";
+import sendResponse from "../../utils/sendResponse";
 
 // register user controller
 const registerUser: RequestHandler = async (
@@ -9,7 +10,8 @@ const registerUser: RequestHandler = async (
 ) => {
   try {
     const result = await authService.registerUser(req.body);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "User created successfully",
       data: result,
@@ -23,7 +25,8 @@ const registerUser: RequestHandler = async (
 const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.loginUser(req.body);
-    res.status(200).json({
+    sendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "User logged in successfully",
       data: result,
