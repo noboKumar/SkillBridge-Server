@@ -53,9 +53,13 @@ const loginUser = async (payload: loginUser) => {
   }
 
   // jwt token
-  const token = jwt.sign({ email: result.email }, config.jwt_secret as string, {
-    expiresIn: "7d",
-  });
+  const token = jwt.sign(
+    { id: result.id, email: result.email, role: result.role },
+    config.jwt_secret as string,
+    {
+      expiresIn: "7d",
+    },
+  );
 
   return {
     token,
@@ -69,7 +73,31 @@ const loginUser = async (payload: loginUser) => {
   };
 };
 
+// get current user service
+const getCurrentUser = async (userId: string) => {
+  if (!userId) {
+    throw new Error("User not found");
+  }
+  const user = await prisma.users.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      profilePhoto: true,
+    },
+  });
+  return {
+    user,
+  };
+};
+
 export const authService = {
   registerUser,
   loginUser,
+  getCurrentUser,
 };

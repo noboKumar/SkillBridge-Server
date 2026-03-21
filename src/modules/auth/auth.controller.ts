@@ -36,7 +36,31 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+// get current user controller
+const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new Error("User not found");
+    }
+    const result = await authService.getCurrentUser(userId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Current user retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const authController = {
   registerUser,
   loginUser,
+  getCurrentUser,
 };
