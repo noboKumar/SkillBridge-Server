@@ -1,7 +1,8 @@
 import { prisma } from "../../lib/prisma";
-import { registerUser } from "../../types";
+import { loginUser, registerUser } from "../../types";
 import bcrypt from "bcrypt";
 
+// register user service
 const registerUser = async (payload: registerUser) => {
   const { name, email, password, profilePhoto } = payload;
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,6 +29,34 @@ const registerUser = async (payload: registerUser) => {
   };
 };
 
+// login user service
+const loginUser = async (payload: loginUser) => {
+  const { email, password } = payload;
+  const result = await prisma.users.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (!result) {
+    throw new Error("User not found");
+  }
+  const comparePassword = await bcrypt.compare(password, result.password);
+  if (!comparePassword) {
+    throw new Error("Invalid password");
+  }
+  if (result.status !== "ACTIVE") {
+    throw new Error("User is Suspended");
+  }
+  return {
+    id: result.id,
+    name: result.name,
+    email: result.email,
+    role: result.role,
+    status: result.status,
+  };
+};
+
 export const authService = {
   registerUser,
+  loginUser,
 };

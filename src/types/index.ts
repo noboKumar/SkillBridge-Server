@@ -4,3 +4,8 @@ export type registerUser = {
   password: string;
   profilePhoto?: string;
 };
+
+export type loginUser = {
+  email: string;
+  password: string;
+};
