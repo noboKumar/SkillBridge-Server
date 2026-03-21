@@ -1,6 +1,8 @@
+import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { loginUser, registerUser } from "../../types";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // register user service
 const registerUser = async (payload: registerUser) => {
@@ -32,11 +34,13 @@ const registerUser = async (payload: registerUser) => {
 // login user service
 const loginUser = async (payload: loginUser) => {
   const { email, password } = payload;
+
   const result = await prisma.users.findUnique({
     where: {
       email,
     },
   });
+
   if (!result) {
     throw new Error("User not found");
   }
@@ -47,12 +51,21 @@ const loginUser = async (payload: loginUser) => {
   if (result.status !== "ACTIVE") {
     throw new Error("User is Suspended");
   }
+
+  // jwt token
+  const token = jwt.sign({ email: result.email }, config.jwt_secret as string, {
+    expiresIn: "7d",
+  });
+
   return {
-    id: result.id,
-    name: result.name,
-    email: result.email,
-    role: result.role,
-    status: result.status,
+    token,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      role: result.role,
+      status: result.status,
+    },
   };
 };
 
