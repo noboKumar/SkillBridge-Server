@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import config from "../config";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import { user } from "../types";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: user;
     }
   }
 }
@@ -21,10 +22,7 @@ const auth = (...roles: string[]) => {
 
     const token = authHeader.split(" ")[1];
     try {
-      const decoded = jwt.verify(
-        token as string,
-        secret as string,
-      ) as JwtPayload;
+      const decoded = jwt.verify(token as string, secret as string) as user;
 
       req.user = decoded;
 

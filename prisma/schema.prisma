@@ -3,11 +3,9 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
-
 datasource db {
   provider = "postgresql"
 }
-
 
 enum Role {
   STUDENT

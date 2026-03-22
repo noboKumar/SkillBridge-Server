@@ -16,3 +16,18 @@ export type TResponse<T> = {
   message?: string;
   data?: T;
 };
+
+export type bookings = {
+  status: "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  studentId: string;
+  tutorId: string;
+  slotId: string;
+  bookingDate: Date;
+  price: number;
+};
+
+export type user = {
+  id: string;
+  email: string;
+  role: "STUDENT" | "TUTOR" | "ADMIN";
+};
