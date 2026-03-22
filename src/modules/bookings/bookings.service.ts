@@ -67,7 +67,25 @@ const getBookings = async (userId: string) => {
   return result;
 };
 
+const getSingleBookings = async (id: string) => {
+  if (!id) {
+    throw new Error("id is required");
+  }
+
+  const result = await prisma.bookings.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      slot: true,
+    },
+  });
+
+  return result;
+};
+
 export const bookingsService = {
   createBookings,
   getBookings,
+  getSingleBookings,
 };

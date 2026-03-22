@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { bookingsService } from "./bookings.service";
 import sendResponse from "../../utils/sendResponse";
 import { user } from "../../types";
+import { get } from "node:http";
 
 const createBookings = async (
   req: Request,
@@ -50,7 +51,28 @@ const getBookings = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getSingleBookings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id;
+
+    const result = await bookingsService.getSingleBookings(id as string);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Bookings fetched successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const bookingsController = {
   createBookings,
   getBookings,
+  getSingleBookings,
 };
