@@ -54,6 +54,20 @@ const createBookings = async (payload: bookings, user: user) => {
   return result;
 };
 
+const getBookings = async (userId: string) => {
+  const result = await prisma.bookings.findMany({
+    where: {
+      studentId: userId,
+    },
+    include: {
+      slot: true,
+    },
+  });
+
+  return result;
+};
+
 export const bookingsService = {
   createBookings,
+  getBookings,
 };
