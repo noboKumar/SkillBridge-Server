@@ -9,4 +9,7 @@ router.get("/tutors", tutorsController.getAllTutors);
 // get single teacher
 router.get("/tutors/:id", tutorsController.getSingleTutor);
 
+// get all categories
+router.get("/categories", tutorsController.getAllCategories);
+
 export const tutorRoutes = router;

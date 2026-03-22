@@ -38,7 +38,26 @@ const getSingleTutor = async (
   }
 };
 
+const getAllCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await tutorsService.getAllCategories();
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Categories retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const tutorsController = {
   getAllTutors,
   getSingleTutor,
+  getAllCategories,
 };

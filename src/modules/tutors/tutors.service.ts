@@ -14,7 +14,14 @@ const getSingleTutor = async (id: string) => {
   return result;
 };
 
+const getAllCategories = async () => {
+  const result = await prisma.categories.findMany();
+  return result;
+};
+
+
 export const tutorsService = {
   getAllTutors,
   getSingleTutor,
+  getAllCategories
 };
