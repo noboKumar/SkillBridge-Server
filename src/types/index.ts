@@ -31,3 +31,9 @@ export type user = {
   email: string;
   role: "STUDENT" | "TUTOR" | "ADMIN";
 };
+
+export type tutorProfile = {
+  bio: string;
+  hourlyRate: number;
+  experienceYears: number;
+};

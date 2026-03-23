@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { tutorProfile } from "../../types";
 
 const getAllTutors = async () => {
   const result = await prisma.tutorProfiles.findMany();
@@ -19,9 +20,23 @@ const getAllCategories = async () => {
   return result;
 };
 
+const updateTutorProfile = async (payload: tutorProfile, userId: string) => {
+  const result = await prisma.tutorProfiles.update({
+    where: {
+      userId,
+    },
+    data: {
+      bio: payload.bio,
+      hourlyRate: payload.hourlyRate,
+      experienceYears: payload.experienceYears,
+    },
+  });
+  return result;
+};
 
 export const tutorsService = {
   getAllTutors,
   getSingleTutor,
-  getAllCategories
+  getAllCategories,
+  updateTutorProfile,
 };
