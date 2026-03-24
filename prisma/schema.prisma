@@ -87,7 +87,7 @@ enum DayOfWeek {
 
 model AvailabilitySlots {
   id      String @id @default(uuid())
-  tutorId String
+  tutorId String @unique
 
   daysOfWeek DayOfWeek
   startTime  String

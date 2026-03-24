@@ -83,9 +83,30 @@ const updateTutorProfile = async (
   }
 };
 
+const updateAvailability = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = req.user;
+    const userId = user?.id as string;
+    const result = await tutorsService.updateAvailability(req.body, userId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Availability updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const tutorsController = {
   getAllTutors,
   getSingleTutor,
   getAllCategories,
   updateTutorProfile,
+  updateAvailability,
 };

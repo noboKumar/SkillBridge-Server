@@ -16,4 +16,7 @@ router.get("/categories", tutorsController.getAllCategories);
 // update tutor profile
 router.put("/tutors/:id", auth(), tutorsController.updateTutorProfile);
 
+// update availability
+router.put("/tutors/availability", auth(), tutorsController.updateAvailability);
+
 export const tutorRoutes = router;
