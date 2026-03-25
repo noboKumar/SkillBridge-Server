@@ -43,3 +43,7 @@ export type reviews = {
   comment: string;
   bookingId: string;
 };
+
+export type userStatusType = {
+  status: "ACTIVE" | "BANNED";
+};
