@@ -37,3 +37,9 @@ export type tutorProfile = {
   hourlyRate: number;
   experienceYears: number;
 };
+
+export type reviews = {
+  rating: number;
+  comment: string;
+  bookingId: string;
+};

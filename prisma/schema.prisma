@@ -142,7 +142,6 @@ model Reviews {
   tutor   TutorProfiles @relation(fields: [tutorId], references: [id])
 
   CreatedAt DateTime @default(now())
-  reviewsId String?
 
   @@index([studentId])
   @@index([tutorId])
