@@ -1,12 +1,17 @@
 import { NextFunction, Request, Response } from "express";
 import config from "../config";
 import jwt from "jsonwebtoken";
-import { user } from "../types";
+
+interface JwtPayload {
+  id: string;
+  email: string;
+  role: string;
+}
 
 declare global {
   namespace Express {
     interface Request {
-      user?: user;
+      user?: JwtPayload;
     }
   }
 }
@@ -17,23 +22,35 @@ const auth = (...roles: string[]) => {
     const secret = config.jwt_secret;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
     }
 
     const token = authHeader.split(" ")[1];
+
     try {
-      const decoded = jwt.verify(token as string, secret as string) as user;
+      const decoded = jwt.verify(token, secret as string) as JwtPayload;
 
       req.user = decoded;
 
-      if (roles.length > 0 && !roles.includes(decoded.role)) {
-        return next(new Error("Forbidden"));
+      // Role check
+      if (roles.length && !roles.includes(decoded.role)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden",
+        });
       }
 
       next();
-    } catch (error: any) {
-      next(error);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token",
+      });
     }
   };
 };
+
 export default auth;
