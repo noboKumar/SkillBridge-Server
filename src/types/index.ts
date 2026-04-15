@@ -3,6 +3,10 @@ export type registerUser = {
   email: string;
   password: string;
   profilePhoto?: string;
+  role: "STUDENT" | "TUTOR";
+  bio: string;
+  hourlyRate: number;
+  experienceYears: number;
 };
 
 export type loginUser = {

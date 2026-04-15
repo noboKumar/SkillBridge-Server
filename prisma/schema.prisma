@@ -41,17 +41,17 @@ model Users {
 model TutorProfiles {
   id         String @id @default(uuid())
   userId     String @unique
-  categoryId String
+  categoryId String?
 
   bio             String
   hourlyRate      Int    @default(0)
   experienceYears Int
 
-  ratingAverage Float
-  totalReview   Int   @default(0)
+  ratingAverage Float?
+  totalReview   Int?   @default(0)
 
   users    Users      @relation(fields: [userId], references: [id])
-  category Categories @relation(fields: [categoryId], references: [id])
+  category Categories? @relation(fields: [categoryId], references: [id])
 
   availabilitySlots AvailabilitySlots[]
   bookings          Bookings[]

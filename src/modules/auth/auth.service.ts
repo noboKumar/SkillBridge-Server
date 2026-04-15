@@ -6,21 +6,47 @@ import jwt from "jsonwebtoken";
 
 // register user service
 const registerUser = async (payload: registerUser) => {
-  const { name, email, password, profilePhoto } = payload;
+  const {
+    name,
+    email,
+    password,
+    profilePhoto,
+    role,
+    bio,
+    hourlyRate,
+    experienceYears,
+  } = payload;
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const result = await prisma.users.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      profilePhoto: profilePhoto
-        ? profilePhoto
-        : "https://i.ibb.co/pB4pgNhr/depositphotos-119671346-stock-illustration-user-icon-vector-male-person.webp",
-      role: "STUDENT",
-      status: "ACTIVE",
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    const newUser = await tx.users.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        profilePhoto: profilePhoto
+          ? profilePhoto
+          : "https://i.ibb.co/pB4pgNhr/depositphotos-119671346-stock-illustration-user-icon-vector-male-person.webp",
+        role,
+        status: "ACTIVE",
+      },
+    });
+
+    if (role === "TUTOR") {
+      await tx.tutorProfiles.create({
+        data: {
+          userId: newUser.id,
+          bio,
+          hourlyRate,
+          experienceYears,
+          ratingAverage: 0,
+          totalReview: 0,
+        },
+      });
+    }
+    return newUser;
   });
+
   return {
     id: result.id,
     name: result.name,
