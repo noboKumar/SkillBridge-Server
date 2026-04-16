@@ -2,7 +2,22 @@ import { prisma } from "../../lib/prisma";
 import { postCategoriesType, tutorProfile } from "../../types";
 
 const getAllTutors = async () => {
-  const result = await prisma.tutorProfiles.findMany();
+  const result = await prisma.tutorProfiles.findMany({
+    include: {
+      user: {
+        select: {
+          name: true,
+          profilePhoto: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          description: true,
+        },
+      },
+    },
+  });
   return result;
 };
 
