@@ -26,6 +26,20 @@ const getSingleTutor = async (id: string) => {
     where: {
       id,
     },
+    include: {
+      user: {
+        select: {
+          name: true,
+          profilePhoto: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          description: true,
+        },
+      },
+    },
   });
   return result;
 };
