@@ -15,6 +15,7 @@ const registerUser = async (payload: registerUser) => {
     bio,
     hourlyRate,
     experienceYears,
+    categoryId
   } = payload;
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -36,6 +37,7 @@ const registerUser = async (payload: registerUser) => {
       await tx.tutorProfiles.create({
         data: {
           userId: newUser.id,
+          categoryId,
           bio,
           hourlyRate,
           experienceYears,

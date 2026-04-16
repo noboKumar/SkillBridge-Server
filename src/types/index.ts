@@ -7,6 +7,7 @@ export type registerUser = {
   bio: string;
   hourlyRate: number;
   experienceYears: number;
+  categoryId: string;
 };
 
 export type loginUser = {
