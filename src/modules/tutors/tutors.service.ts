@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { tutorProfile } from "../../types";
+import { postCategoriesType, tutorProfile } from "../../types";
 
 const getAllTutors = async () => {
   const result = await prisma.tutorProfiles.findMany();
@@ -22,16 +22,15 @@ const getAllCategories = async () => {
 };
 
 // post categories
-const postCategories = async (payload: Record<string, unknown>) => {
+const postCategories = async (payload: postCategoriesType) => {
   const { name, description } = payload;
-  await prisma.categories.createMany({
-    data: [
-      { name: "Math", description: "Math tutoring" },
-      { name: "English", description: "English tutoring" },
-      { name: "Programming", description: "Coding help" },  
-      { name: "Science", description: "Science tutoring" },
-    ],
+  const result = await prisma.categories.create({
+    data: {
+      name,
+      description,
+    },
   });
+  return result;
 };
 
 const updateTutorProfile = async (payload: tutorProfile, userId: string) => {

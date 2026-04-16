@@ -51,3 +51,8 @@ export type reviews = {
 export type userStatusType = {
   status: "ACTIVE" | "BANNED";
 };
+
+export type postCategoriesType = {
+  name: string;
+  description: string;
+};
