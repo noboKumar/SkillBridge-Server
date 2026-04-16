@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { tutorsService } from "./tutors.service";
 import sendResponse from "../../utils/sendResponse";
-import { th } from "zod/v4/locales";
 
 const getAllTutors = async (
   req: Request,
@@ -50,6 +49,24 @@ const getAllCategories = async (
       statusCode: 200,
       success: true,
       message: "Categories retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+const postCategories = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await tutorsService.postCategories(req.body);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Category created successfully",
       data: result,
     });
   } catch (error: any) {
@@ -107,6 +124,7 @@ export const tutorsController = {
   getAllTutors,
   getSingleTutor,
   getAllCategories,
+  postCategories,
   updateTutorProfile,
   updateAvailability,
 };

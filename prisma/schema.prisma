@@ -35,7 +35,6 @@ model Users {
   updatedAt DateTime @updatedAt
 
   @@index([role])
-  @@map("users")
 }
 
 model TutorProfiles {
@@ -50,7 +49,7 @@ model TutorProfiles {
   ratingAverage Float?
   totalReview   Int?   @default(0)
 
-  users    Users      @relation(fields: [userId], references: [id])
+  user    Users      @relation(fields: [userId], references: [id])
   category Categories? @relation(fields: [categoryId], references: [id])
 
   availabilitySlots AvailabilitySlots[]
@@ -62,7 +61,6 @@ model TutorProfiles {
 
   @@index([userId])
   @@index([categoryId])
-  @@map("tutorProfile")
 }
 
 model Categories {
@@ -72,7 +70,6 @@ model Categories {
 
   tutors TutorProfiles[]
 
-  @@map("category")
 }
 
 enum DayOfWeek {
@@ -125,7 +122,6 @@ model Bookings {
   @@index([tutorId])
   @@index([slotId])
   @@index([status])
-  @@map("booking")
 }
 
 model Reviews {
@@ -145,5 +141,4 @@ model Reviews {
 
   @@index([studentId])
   @@index([tutorId])
-  @@map("review")
 }

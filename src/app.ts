@@ -33,6 +33,7 @@ app.use("/api", reviewRoutes);
 // admin
 app.use("/api/admin", adminRoutes);
 
+
 app.get("/", (req: Request, res: Response) => {
   res.send("SkillBridge Server Is Running...");
 });

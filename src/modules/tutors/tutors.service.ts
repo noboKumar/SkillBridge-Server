@@ -15,9 +15,23 @@ const getSingleTutor = async (id: string) => {
   return result;
 };
 
+// get all categories
 const getAllCategories = async () => {
   const result = await prisma.categories.findMany();
   return result;
+};
+
+// post categories
+const postCategories = async (payload: Record<string, unknown>) => {
+  const { name, description } = payload;
+  await prisma.categories.createMany({
+    data: [
+      { name: "Math", description: "Math tutoring" },
+      { name: "English", description: "English tutoring" },
+      { name: "Programming", description: "Coding help" },  
+      { name: "Science", description: "Science tutoring" },
+    ],
+  });
 };
 
 const updateTutorProfile = async (payload: tutorProfile, userId: string) => {
@@ -51,6 +65,7 @@ export const tutorsService = {
   getAllTutors,
   getSingleTutor,
   getAllCategories,
+  postCategories,
   updateTutorProfile,
   updateAvailability,
 };

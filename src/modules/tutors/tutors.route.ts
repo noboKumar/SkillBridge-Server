@@ -13,6 +13,9 @@ router.get("/tutors/:id", tutorsController.getSingleTutor);
 // get all categories
 router.get("/categories", tutorsController.getAllCategories);
 
+// post categories
+router.post("/categories", auth(), tutorsController.postCategories);
+
 // update tutor profile
 router.put("/tutors/:id", auth(), tutorsController.updateTutorProfile);
 
