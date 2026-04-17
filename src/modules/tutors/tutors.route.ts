@@ -7,6 +7,9 @@ const router = express.Router();
 // get all teacher
 router.get("/tutors", tutorsController.getAllTutors);
 
+// get featured teachers
+router.get("/tutors/featured", tutorsController.getFeaturedTutors);
+
 // get single teacher
 router.get("/tutors/:id", tutorsController.getSingleTutor);
 

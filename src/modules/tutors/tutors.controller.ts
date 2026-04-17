@@ -20,6 +20,24 @@ const getAllTutors = async (
   }
 };
 
+const getFeaturedTutors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await tutorsService.getFeaturedTutors();
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Featured tutors retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 const getSingleTutor = async (
   req: Request,
   res: Response,
@@ -122,6 +140,7 @@ const updateAvailability = async (
 
 export const tutorsController = {
   getAllTutors,
+  getFeaturedTutors,
   getSingleTutor,
   getAllCategories,
   postCategories,

@@ -21,6 +21,28 @@ const getAllTutors = async () => {
   return result;
 };
 
+// get featured teachers
+const getFeaturedTutors = async () => {
+  const result = await prisma.tutorProfiles.findMany({
+    take: 4,
+    include: {
+      user: {
+        select: {
+          name: true,
+          profilePhoto: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          description: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 const getSingleTutor = async (id: string) => {
   const result = await prisma.tutorProfiles.findUnique({
     where: {
@@ -91,6 +113,7 @@ const updateAvailability = async (
 
 export const tutorsService = {
   getAllTutors,
+  getFeaturedTutors,
   getSingleTutor,
   getAllCategories,
   postCategories,
