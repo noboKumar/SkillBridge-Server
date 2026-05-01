@@ -118,6 +118,25 @@ const updateTutorProfile = async (
   }
 };
 
+const getMyProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id as string;
+    const result = await tutorsService.getMyTutorProfile(userId);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Profile retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 const updateAvailability = async (
   req: Request,
   res: Response,
@@ -142,6 +161,7 @@ export const tutorsController = {
   getAllTutors,
   getFeaturedTutors,
   getSingleTutor,
+  getMyProfile,
   getAllCategories,
   postCategories,
   updateTutorProfile,

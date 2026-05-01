@@ -32,13 +32,13 @@ const createBookings = async (
 
 const getBookings = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.user?.id;
+    const user = req.user;
 
-    if (!userId) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    const result = await bookingsService.getBookings(userId);
+    const result = await bookingsService.getBookings(user);
 
     sendResponse(res, {
       statusCode: 200,
@@ -71,8 +71,31 @@ const getSingleBookings = async (
   }
 };
 
+const updateBookingStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id as string;
+    const { status } = req.body;
+    const user = req.user!;
+
+    const result = await bookingsService.updateBookingStatus(id, status, user);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Booking status updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
 export const bookingsController = {
   createBookings,
   getBookings,
   getSingleBookings,
+  updateBookingStatus
 };

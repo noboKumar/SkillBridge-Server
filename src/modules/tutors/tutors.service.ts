@@ -87,6 +87,16 @@ const getSingleTutor = async (id: string) => {
           description: true,
         },
       },
+      availabilitySlots: {
+        where: { isBooked: false }
+      },
+      reviews: {
+        include: {
+          student: {
+            select: { name: true, profilePhoto: true }
+          }
+        }
+      }
     },
   });
   return result;
@@ -124,15 +134,47 @@ const updateTutorProfile = async (payload: tutorProfile, userId: string) => {
   return result;
 };
 
+const getMyTutorProfile = async (userId: string) => {
+  const result = await prisma.tutorProfiles.findUnique({
+    where: { userId },
+    include: {
+      availabilitySlots: true,
+    },
+  });
+  return result;
+};
+
 const updateAvailability = async (
   payload: Record<string, unknown>,
   userId: string,
 ) => {
-  const result = await prisma.availabilitySlots.update({
-    where: {
-      tutorId: userId,
+  // Find tutor profile by userId
+  const tutorProfile = await prisma.tutorProfiles.findUnique({
+    where: { userId },
+  });
+
+  if (!tutorProfile) {
+    throw new Error("Tutor profile not found. Please update your profile first.");
+  }
+
+  const tutorId = tutorProfile.id;
+
+  // Upsert: create if not exists, update if exists
+  const result = await prisma.availabilitySlots.upsert({
+    where: { tutorId },
+    create: {
+      tutorId,
+      daysOfWeek: payload.daysOfWeek as any,
+      startTime: payload.startTime as string,
+      endTime: payload.endTime as string,
+      isBooked: false,
     },
-    data: { ...payload },
+    update: {
+      daysOfWeek: payload.daysOfWeek as any,
+      startTime: payload.startTime as string,
+      endTime: payload.endTime as string,
+      isBooked: false,
+    },
   });
   return result;
 };
@@ -141,6 +183,7 @@ export const tutorsService = {
   getAllTutors,
   getFeaturedTutors,
   getSingleTutor,
+  getMyTutorProfile,
   getAllCategories,
   postCategories,
   updateTutorProfile,

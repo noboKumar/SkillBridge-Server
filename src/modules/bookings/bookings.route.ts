@@ -13,4 +13,7 @@ router.get("/bookings", auth(), bookingsController.getBookings);
 // get single bookings
 router.get("/bookings/:id", auth(), bookingsController.getSingleBookings);
 
+// update booking status
+router.patch("/bookings/:id", auth(), bookingsController.updateBookingStatus);
+
 export const bookingsRoutes = router;
