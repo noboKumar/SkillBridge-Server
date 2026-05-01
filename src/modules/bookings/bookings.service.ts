@@ -119,8 +119,23 @@ const updateBookingStatus = async (id: string, status: any, user: user) => {
 
   if (!booking) throw new Error("Booking not found");
 
-  if (user.role !== "ADMIN" && booking.tutor.userId !== user.id) {
-    throw new Error("Unauthorized to update this booking");
+  // Enforce current state must be CONFIRMED before any transition
+  if (booking.status !== "CONFIRMED") {
+    throw new Error("Only CONFIRMED bookings can be updated");
+  }
+
+  if (user.role === "STUDENT") {
+    // Students can only cancel their own bookings
+    if (booking.studentId !== user.id) throw new Error("Unauthorized");
+    if (status !== "CANCELLED") throw new Error("Students can only cancel bookings");
+  } else if (user.role === "TUTOR") {
+    // Tutors can only complete their own sessions
+    if (booking.tutor.userId !== user.id) throw new Error("Unauthorized");
+    if (status !== "COMPLETED") throw new Error("Tutors can only mark sessions as completed");
+  } else if (user.role === "ADMIN") {
+    // Admins can set any status
+  } else {
+    throw new Error("Unauthorized");
   }
 
   return await prisma.bookings.update({
