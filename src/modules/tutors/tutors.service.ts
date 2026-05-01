@@ -1,8 +1,34 @@
 import { prisma } from "../../lib/prisma";
 import { postCategoriesType, tutorProfile } from "../../types";
 
-const getAllTutors = async () => {
+const getAllTutors = async (query: any) => {
+  const { searchTerm, rating, minPrice, maxPrice, category } = query;
+
+  const whereCondition: any = {};
+
+  if (searchTerm) {
+    whereCondition.OR = [
+      { user: { name: { contains: searchTerm as string, mode: "insensitive" } } },
+      { category: { name: { contains: searchTerm as string, mode: "insensitive" } } },
+    ];
+  }
+
+  if (rating) {
+    whereCondition.ratingAverage = { gte: Number(rating) };
+  }
+
+  if (minPrice || maxPrice) {
+    whereCondition.hourlyRate = {};
+    if (minPrice) whereCondition.hourlyRate.gte = Number(minPrice);
+    if (maxPrice) whereCondition.hourlyRate.lte = Number(maxPrice);
+  }
+
+  if (category) {
+    whereCondition.categoryId = category;
+  }
+
   const result = await prisma.tutorProfiles.findMany({
+    where: whereCondition,
     include: {
       user: {
         select: {
