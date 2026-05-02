@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { bookingsService } from "./bookings.service";
 import sendResponse from "../../utils/sendResponse";
 import { user } from "../../types";
-import { get } from "node:http";
 
 const createBookings = async (
   req: Request,
@@ -14,7 +13,7 @@ const createBookings = async (
       throw new Error("User not authenticated");
     }
 
-    const user = req.user!;
+    const user = req.user as user;
 
     const result = await bookingsService.createBookings(req.body, user);
     sendResponse(res, {
@@ -32,7 +31,7 @@ const createBookings = async (
 
 const getBookings = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = req.user;
+    const user = req.user as user;
 
     if (!user) {
       throw new Error("User not authenticated");
@@ -79,7 +78,7 @@ const updateBookingStatus = async (
   try {
     const id = req.params.id as string;
     const { status } = req.body;
-    const user = req.user!;
+    const user = req.user as user;
 
     const result = await bookingsService.updateBookingStatus(id, status, user);
     sendResponse(res, {
