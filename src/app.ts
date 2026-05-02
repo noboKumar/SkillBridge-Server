@@ -38,4 +38,14 @@ app.get("/", (req: Request, res: Response) => {
   res.send("SkillBridge Server Is Running...");
 });
 
+// Global Error Handler
+app.use((err: any, req: Request, res: Response, next: import("express").NextFunction) => {
+  console.error(err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === 'development' ? err : undefined,
+  });
+});
+
 export default app;

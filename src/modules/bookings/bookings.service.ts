@@ -26,6 +26,7 @@ const createBookings = async (payload: bookings, user: user) => {
   const existingBooking = await prisma.bookings.findFirst({
     where: {
       slotId: payload.slotId,
+      status: "CONFIRMED",
     },
   });
 
@@ -138,9 +139,21 @@ const updateBookingStatus = async (id: string, status: any, user: user) => {
     throw new Error("Unauthorized");
   }
 
-  return await prisma.bookings.update({
-    where: { id },
-    data: { status }
+  return await prisma.$transaction(async (tx) => {
+    const updatedBooking = await tx.bookings.update({
+      where: { id },
+      data: { status }
+    });
+
+    // If the session is finished or cancelled, free up the slot again
+    if (status === "CANCELLED" || status === "COMPLETED") {
+      await tx.availabilitySlots.update({
+        where: { id: booking.slotId },
+        data: { isBooked: false }
+      });
+    }
+
+    return updatedBooking;
   });
 };
 
