@@ -5,6 +5,7 @@ import { tutorRoutes } from "./modules/tutors/tutors.route";
 import { bookingsRoutes } from "./modules/bookings/bookings.route";
 import { reviewRoutes } from "./modules/reviews/reviews.route";
 import { adminRoutes } from "./modules/admin/admin.route";
+import { paymentRoutes } from "./modules/payment/payment.route";
 
 const app: Application = express();
 
@@ -44,6 +45,9 @@ app.use("/api", reviewRoutes);
 
 // admin
 app.use("/api/admin", adminRoutes);
+
+// payment
+app.use("/api", paymentRoutes);
 
 
 app.get("/", (req: Request, res: Response) => {

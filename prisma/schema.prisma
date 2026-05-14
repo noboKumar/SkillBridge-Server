@@ -38,8 +38,8 @@ model Users {
 }
 
 model TutorProfiles {
-  id         String @id @default(uuid())
-  userId     String @unique
+  id         String  @id @default(uuid())
+  userId     String  @unique
   categoryId String?
 
   bio             String
@@ -49,7 +49,7 @@ model TutorProfiles {
   ratingAverage Float?
   totalReview   Int?   @default(0)
 
-  user    Users      @relation(fields: [userId], references: [id])
+  user     Users       @relation(fields: [userId], references: [id])
   category Categories? @relation(fields: [categoryId], references: [id])
 
   availabilitySlots AvailabilitySlots[]
@@ -69,7 +69,6 @@ model Categories {
   description String
 
   tutors TutorProfiles[]
-
 }
 
 enum DayOfWeek {
@@ -96,6 +95,7 @@ model AvailabilitySlots {
 }
 
 enum BookingStatus {
+  PENDING_PAYMENT
   CONFIRMED
   COMPLETED
   CANCELLED
@@ -109,19 +109,45 @@ model Bookings {
 
   bookingDate DateTime
   price       Int
-  status      BookingStatus @default(CONFIRMED)
+  status      BookingStatus @default(PENDING_PAYMENT)
 
   student Users             @relation("StudentBookings", fields: [studentId], references: [id])
   tutor   TutorProfiles     @relation(fields: [tutorId], references: [id])
   slot    AvailabilitySlots @relation(fields: [slotId], references: [id])
 
-  CreatedAt DateTime @default(now())
+  payment Payment?
+
+  createdAt DateTime @default(now())
   reviews   Reviews?
 
   @@index([studentId])
   @@index([tutorId])
   @@index([slotId])
   @@index([status])
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  stripePaymentIntentId String        @unique
+  amount                Int
+  status                PaymentStatus @default(PENDING)
+
+  bookingId String   @unique
+  booking   Bookings @relation(fields: [bookingId], references: [id])
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@map("payments")
 }
 
 model Reviews {
@@ -137,7 +163,7 @@ model Reviews {
   student Users         @relation(fields: [studentId], references: [id])
   tutor   TutorProfiles @relation(fields: [tutorId], references: [id])
 
-  CreatedAt DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([studentId])
   @@index([tutorId])

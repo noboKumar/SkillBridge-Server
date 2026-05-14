@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { BookingStatus } from "../../generated/prisma";
 import { bookings, user } from "../../types";
 
 const createBookings = async (payload: bookings, user: user) => {
@@ -26,7 +27,7 @@ const createBookings = async (payload: bookings, user: user) => {
   const existingBooking = await prisma.bookings.findFirst({
     where: {
       slotId: payload.slotId,
-      status: "CONFIRMED",
+      status: BookingStatus.CONFIRMED,
     },
   });
 
@@ -39,7 +40,6 @@ const createBookings = async (payload: bookings, user: user) => {
   const slotId = slot.id;
   const bookingDate = new Date();
   const price = slot.tutor?.hourlyRate || 0;
-  const status = "CONFIRMED";
 
   const result = await prisma.$transaction(async (tx) => {
     const booking = await tx.bookings.create({
@@ -49,13 +49,13 @@ const createBookings = async (payload: bookings, user: user) => {
         slotId,
         bookingDate,
         price,
-        status,
+        status: BookingStatus.CONFIRMED, // Payment is verified before this call
       },
     });
 
     await tx.availabilitySlots.update({
       where: { id: slotId },
-      data: { isBooked: true }
+      data: { isBooked: true },
     });
 
     return booking;
@@ -71,7 +71,7 @@ const getBookings = async (user: user) => {
     whereCondition.studentId = user.id;
   } else if (user.role === "TUTOR") {
     const tutorProfile = await prisma.tutorProfiles.findUnique({
-      where: { userId: user.id }
+      where: { userId: user.id },
     });
     if (!tutorProfile) throw new Error("Tutor profile not found");
     whereCondition.tutorId = tutorProfile.id;
@@ -83,13 +83,19 @@ const getBookings = async (user: user) => {
     where: whereCondition,
     include: {
       slot: true,
-      student: { select: { id: true, name: true, email: true, profilePhoto: true } },
-      tutor: { include: { user: { select: { id: true, name: true, email: true, profilePhoto: true } } } },
-      reviews: true
+      student: {
+        select: { id: true, name: true, email: true, profilePhoto: true },
+      },
+      tutor: {
+        include: {
+          user: { select: { id: true, name: true, email: true, profilePhoto: true } },
+        },
+      },
+      reviews: true,
     },
     orderBy: {
-      bookingDate: 'desc'
-    }
+      bookingDate: "desc",
+    },
   });
 
   return result;
@@ -101,12 +107,8 @@ const getSingleBookings = async (id: string) => {
   }
 
   const result = await prisma.bookings.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      slot: true,
-    },
+    where: { id },
+    include: { slot: true },
   });
 
   return result;
@@ -115,24 +117,34 @@ const getSingleBookings = async (id: string) => {
 const updateBookingStatus = async (id: string, status: any, user: user) => {
   const booking = await prisma.bookings.findUnique({
     where: { id },
-    include: { tutor: true }
+    include: { tutor: true },
   });
 
   if (!booking) throw new Error("Booking not found");
 
-  // Enforce current state must be CONFIRMED before any transition
-  if (booking.status !== "CONFIRMED") {
-    throw new Error("Only CONFIRMED bookings can be updated");
+  // CONFIRMED → CANCELLED (student cancels) or CONFIRMED → COMPLETED (tutor marks done)
+  const validTransitions: Record<string, BookingStatus[]> = {
+    [BookingStatus.CONFIRMED]: [
+      BookingStatus.CANCELLED,
+      BookingStatus.COMPLETED,
+    ],
+  };
+
+  const allowed = validTransitions[booking.status];
+  if (!allowed || !allowed.includes(status as BookingStatus)) {
+    throw new Error(
+      `Cannot transition booking from ${booking.status} to ${status}`,
+    );
   }
 
   if (user.role === "STUDENT") {
-    // Students can only cancel their own bookings
     if (booking.studentId !== user.id) throw new Error("Unauthorized");
-    if (status !== "CANCELLED") throw new Error("Students can only cancel bookings");
+    if (status !== BookingStatus.CANCELLED)
+      throw new Error("Students can only cancel bookings");
   } else if (user.role === "TUTOR") {
-    // Tutors can only complete their own sessions
     if (booking.tutor.userId !== user.id) throw new Error("Unauthorized");
-    if (status !== "COMPLETED") throw new Error("Tutors can only mark sessions as completed");
+    if (status !== BookingStatus.COMPLETED)
+      throw new Error("Tutors can only mark sessions as completed");
   } else if (user.role === "ADMIN") {
     // Admins can set any status
   } else {
@@ -142,14 +154,17 @@ const updateBookingStatus = async (id: string, status: any, user: user) => {
   return await prisma.$transaction(async (tx) => {
     const updatedBooking = await tx.bookings.update({
       where: { id },
-      data: { status }
+      data: { status },
     });
 
-    // If the session is finished or cancelled, free up the slot again
-    if (status === "CANCELLED" || status === "COMPLETED") {
+    // If cancelled or completed, free up the slot again
+    if (
+      status === BookingStatus.CANCELLED ||
+      status === BookingStatus.COMPLETED
+    ) {
       await tx.availabilitySlots.update({
         where: { id: booking.slotId },
-        data: { isBooked: false }
+        data: { isBooked: false },
       });
     }
 
@@ -161,5 +176,5 @@ export const bookingsService = {
   createBookings,
   getBookings,
   getSingleBookings,
-  updateBookingStatus
+  updateBookingStatus,
 };

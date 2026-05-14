@@ -57,3 +57,17 @@ export type postCategoriesType = {
   name: string;
   description: string;
 };
+
+export interface CreatePaymentIntentBody {
+  amount: number;          // in cents, e.g. 5000 = $50
+  currency?: string;
+  session_id: string;
+  student_id: string;
+  tutor_id: string;
+  session_title?: string;
+}
+
+export interface PaymentIntentResponse {
+  client_secret: string;
+  payment_intent_id: string;
+}
